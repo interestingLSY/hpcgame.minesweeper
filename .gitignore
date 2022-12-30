@@ -7,6 +7,14 @@ tmp.txt
 intlsy-test.cpp
 temp.cpp
 
+# executables
+game_server
+judger
+map_generator
+naive
+naive-mt
+
+
 # ---> C++
 # Prerequisites
 *.d
