@@ -1,11 +1,11 @@
 .SECONDEXPANSION:
 
 CC 	= g++
-CXXFLAGS ?= -g -Ofast -std=c++20 -lpthread -Wall
+CXXFLAGS ?= -g -Ofast -std=c++20 -lpthread -Wall -march=native
 
 ANSWERS = naive naive-mt
 LIBS = csapp wrappers minesweeper_helpers
-EXES = judger game_server map_generator
+EXES = judger game_server map_generator map_visualizer
 
 LIB_OBJS = $(foreach x, $(LIBS), $(addsuffix .o, $(x)))
 
@@ -23,10 +23,10 @@ all: $(EXES) $(ANSWERS)
 	$(CC) -c $(CXXFLAGS) $< -o $@
 
 $(EXES): $$@.o $(LIB_OBJS)
-	$(CC) $@.o $(CXXFLAGS) -o $@
+	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
 
 $(ANSWERS): $$@.o $(LIB_OBJS)
-	$(CC) $@.o $(CXXFLAGS) -o $@
+	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
 
 grade: all
 

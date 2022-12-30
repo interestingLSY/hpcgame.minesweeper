@@ -11,6 +11,7 @@ temp.cpp
 game_server
 judger
 map_generator
+map_visualizer
 naive
 naive-mt
 
