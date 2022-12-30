@@ -1,3 +1,12 @@
+# vscode
+.vscode
+
+# intlsy's test files
+temp.txt
+tmp.txt
+intlsy-test.cpp
+temp.cpp
+
 # ---> C++
 # Prerequisites
 *.d
