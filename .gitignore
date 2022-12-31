@@ -6,6 +6,7 @@ temp.txt
 tmp.txt
 intlsy-test.cpp
 temp.cpp
+map/
 
 # executables
 game_server

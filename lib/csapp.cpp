@@ -27,10 +27,12 @@
 /************************** 
  * Error-handling functions
  **************************/
+const char* prog_name = NULL;
 /* $begin errorfuns */
 /* $begin unixerror */
 void unix_error(const char *msg) /* Unix-style error */
 {
+    if (prog_name) fprintf(stderr, "[%s] ", prog_name);
     fprintf(stderr, "%s: %s\n", msg, strerror(errno));
     exit(0);
 }
@@ -38,19 +40,25 @@ void unix_error(const char *msg) /* Unix-style error */
 
 void posix_error(int code, const char *msg) /* Posix-style error */
 {
+    if (prog_name) fprintf(stderr, "[%s] ", prog_name);
     fprintf(stderr, "%s: %s\n", msg, strerror(code));
     exit(0);
 }
 
 void gai_error(int code, const char *msg) /* Getaddrinfo-style error */
 {
+    if (prog_name) fprintf(stderr, "[%s] ", prog_name);
     fprintf(stderr, "%s: %s\n", msg, gai_strerror(code));
     exit(0);
 }
 
-void app_error(const char *msg) /* Application error */
+void app_error(const char *format, ...) /* Application error */
 {
-    fprintf(stderr, "%s\n", msg);
+    if (prog_name) fprintf(stderr, "[%s] ", prog_name);
+    va_list arglist;
+    va_start(arglist, format);
+    vfprintf(stderr, format, arglist);
+    va_end(arglist);
     exit(0);
 }
 /* $end errorfuns */

@@ -20,3 +20,13 @@ void Usleep(useconds_t usec) {
 		unix_error("usleep error");
 	}
 }
+
+void Setenv(const char* name, const char* value, int replace) {
+	if (setenv(name, value, replace) < 0) {
+		unix_error("setenv error");
+	}
+}
+
+char* Getenv(const char* name) {
+	return getenv(name);
+}

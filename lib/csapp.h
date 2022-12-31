@@ -55,6 +55,10 @@ typedef struct {
 extern int h_errno;    /* Defined by BIND for DNS errors */ 
 extern char **environ; /* Defined by libc */
 
+// used in unix_error() and app_error()
+// We print out "prog_name"
+extern const char* prog_name;
+
 /* Misc constants */
 #define	MAXLINE	 8192  /* Max text line length */
 #define MAXBUF   8192  /* Max I/O buffer size */
@@ -65,7 +69,7 @@ void unix_error(const char *msg);
 void posix_error(int code, const char *msg);
 void dns_error(const char *msg);
 void gai_error(int code, const char *msg);
-void app_error(const char *msg);
+void app_error(const char *format, ...);
 
 /* Process control wrappers */
 pid_t Fork(void);
