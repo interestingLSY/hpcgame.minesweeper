@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "lib/wrappers.h"
+#include "lib/log.h"
 
 void usage(char* prog_name) {
 	printf("Usage: %s <path/to/player's/program> <path/to/map> [time_limit (In seconds, default: +inf)] [path/to/game/server (Default: ./game_server)]\n", prog_name);
@@ -87,10 +88,10 @@ void sigchld_handler(int _) {
 // which means that we won't write anything to any pipes.
 // So receiving SIGPIPE means there is some bug inside the judger.
 void sigpipe_handler(int _) {
-	fprintf(stderr, "[Judger] Warning: Broken pipe.\n");
-	fprintf(stderr, "[Judger] This means that there is some bugs in the judger.\n");
-	fprintf(stderr, "[Judger] Please contact interestingLSY (interestingLSY@gmail.com) and report the bug.\n");
-	fprintf(stderr, "[Judger] Thank you!\n");
+	log("Warning: Broken pipe.\n");
+	log("This means that there is some bugs in the judger.\n");
+	log("Please contact interestingLSY (interestingLSY@gmail.com) and report the bug.\n");
+	log("Thank you!\n");
 	exit(1);
 }
 
@@ -120,13 +121,14 @@ void create_game_server() {
 		sprintf(buf, "%d", fd_gs_from_ju);
 		Setenv("MINESWEEPER_FD_GS_FROM_JU", buf, true);
 		Setenv("MINESWEEPER_MAP_FILE_PATH", map_file_path, true);
+		Setenv("MINESWEEPER_LAUNCHED_BY_JUDGER", "1", true);
 
 		// Reset signal handlers
 		Signal(SIGCHLD, SIG_DFL);
 		Signal(SIGPIPE, SIG_DFL);
 		Signal(SIGALRM, SIG_DFL);
 
-		fprintf(stderr, "[Judger] Starting game server...\n");
+		log("Starting game server...\n");
 
 		// Exec
 		Execl(game_server_path, game_server_path, NULL);
@@ -150,13 +152,14 @@ void create_player() {
 		Setenv("MINESWEEPER_FD_PL_TO_GS", buf, true);
 		sprintf(buf, "%d", fd_pl_from_gs);
 		Setenv("MINESWEEPER_FD_PL_FROM_GS", buf, true);
+		Setenv("MINESWEEPER_LAUNCHED_BY_JUDGER", "1", true);
 
 		// Reset signal handlers
 		Signal(SIGCHLD, SIG_DFL);
 		Signal(SIGPIPE, SIG_DFL);
 		Signal(SIGALRM, SIG_DFL);
 
-		fprintf(stderr, "[Judger] Starting player's program...\n");
+		log("Starting player's program...\n");
 
 		// Exec
 		Execl(player_path, player_path, NULL);
