@@ -28,6 +28,10 @@ void Setenv(const char* name, const char* value, int replace);
 /* Return the value of envariable NAME, or NULL if it doesn't exist.  */
 char* Getenv(const char* name);
 
+/* Return the value of envariable NAME. If it does not exist,
+   report an error and exit.  */
+char* Getenv_must_exist(const char* name);
+
 /* Execute PATH with all arguments after PATH until
    a NULL pointer  */
 #define Execl(...) {execl(__VA_ARGS__); unix_error("execl error");}

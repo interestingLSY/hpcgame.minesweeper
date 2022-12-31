@@ -20,12 +20,12 @@ void usage(char* prog_name) {
 }
 
 long N, K, logN;
-long* is_mine;
+char* is_mine;
 
-long test_is_mine(long r, long	 c) {
+char test_is_mine(long r, long c) {
 	if (r < 0 || c < 0 || r >= N || c >= N) return 0;
 	long index = (r<<logN) + c;
-	long number = index/64, offset = index%64;
+	long number = index/8, offset = index%8;
 	return is_mine[number]>>offset&0x1;
 }
 
@@ -55,7 +55,7 @@ map_visualizer to a larger number, and recompile it.\n\
 P.S. the default value of DISPLAY_THRESHOLD_N is 2048.");
 	}
 
-	is_mine = (long*)Malloc(N*N/8);
+	is_mine = (char*)Malloc(N*N/8);
 	size_t byte_read = fread(is_mine, 1, N*N/8, map_file);
 	if (byte_read != N*N/8) {
 		app_error("Failed to read the map. Maybe the map file is broken?");

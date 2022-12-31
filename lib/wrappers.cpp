@@ -30,3 +30,11 @@ void Setenv(const char* name, const char* value, int replace) {
 char* Getenv(const char* name) {
 	return getenv(name);
 }
+
+char* Getenv_must_exist(const char* name) {
+	char* result;
+	if ((result=getenv(name)) == NULL) {
+		app_error("Environment variable %s does not exists.", name);
+	}
+	return result;
+}

@@ -42,23 +42,23 @@ std::mt19937 rng;
 long N, K, seed;
 int logN;
 
-long* is_mine;	// A big array. It ith-bit indicate whether (i/N, i%N) is a mine or not
+char* is_mine;	// A big array. It ith-bit indicate whether (i/N, i%N) is a mine or not
 
 inline void put_mine(uint r, uint c) {
 	long index = r<<logN | c;
-	long number = index/64, offset = index%64;
-	is_mine[number] |= 1L<<offset;
+	long number = index/8, offset = index%8;
+	is_mine[number] |= 1<<offset;
 }
 
 inline void unput_mine(uint r, uint c) {
 	long index = r<<logN | c;
-	long number = index/64, offset = index%64;
-	is_mine[number] &= ~(1L<<offset);
+	long number = index/8, offset = index%8;
+	is_mine[number] &= ~(1<<offset);
 }
 
 long test_is_mine(uint r, uint c) {
 	long index = (r<<logN) + c;
-	long number = index/64, offset = index%64;
+	long number = index/8, offset = index%8;
 	return is_mine[number]>>offset&0x1;
 }
 
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]) {
 	}
 	rng = std::mt19937(seed);
 
-	is_mine = (long*)Calloc(N*N/8, 1);
+	is_mine = (char*)Calloc(N*N/8, 1);
 
 	// Stage 1: Create some threads and begin to put mines in the map
 	pthread_t tids[NUM_THREAD];
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
 	// Stage 2: Count the number of put mines, and put the lacked mines
 	long mine_put = 0;
 	for (long i = 0; i < N*N/64; ++i) {
-		mine_put += __builtin_popcountll(is_mine[i]);
+		mine_put += __builtin_popcountll(((long*)is_mine)[i]);
 	}
 	// printf("%ld\n", mine_put);
 	if (mine_put < K) {
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
 
 	// mine_put = 0;
 	// for (long i = 0; i < N*N/64; ++i) {
-	// 	mine_put += __builtin_popcountll(is_mine[i]);
+	// 	mine_put += __builtin_popcountll(((long*)is_mine)[i]);
 	// }
 	// printf("%ld\n", mine_put);
 
