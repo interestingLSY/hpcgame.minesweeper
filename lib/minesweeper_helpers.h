@@ -42,6 +42,7 @@ public:
 // 整个程序的初始化。
 // This should be called once and only once in the player's program
 void minesweeper_init(long &N, long &K);
+void minesweeper_init(int &N, int &K);
 
 // 创建一个新的信道
 Channel create_channel(void);

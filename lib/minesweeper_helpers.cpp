@@ -41,6 +41,12 @@ manually. Please invoke the judger.\n");
 	_N = N; _K = K;
 }
 
+void minesweeper_init(int &N, int &K) {
+	long _N, _K;
+	minesweeper_init(_N, _K);
+	N = _N; K = _K;
+}
+
 pthread_mutex_t create_channel_mutex = PTHREAD_MUTEX_INITIALIZER;
 Channel create_channel(void) {
 	Pthread_mutex_lock(&create_channel_mutex);
@@ -66,6 +72,7 @@ ClickResult Channel::click(long r, long c, bool skip_when_reopen) {
 	}
 	char* shm_pos = this->shm_pos;
 	ClickResult result;
+	result.is_skipped = false;
 	// Fill in `click_r` and `click_c`
 	SHM_CLICK_R(shm_pos) = (unsigned short)r;
 	SHM_CLICK_C(shm_pos) = (unsigned short)c;
