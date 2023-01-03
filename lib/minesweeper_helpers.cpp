@@ -11,6 +11,11 @@ static int fd_from_gs, fd_to_gs;
 static long _N, _K;
 
 void minesweeper_init(long &N, long &K) {
+	static bool is_minesweeper_init_called = false;
+	if (is_minesweeper_init_called) {
+		log("Error! Please call `minesweeper_init` only once.\n");
+		exit(1);
+	}
 	prog_name = "Player's Program";
 	if (!Getenv("MINESWEEPER_LAUNCHED_BY_JUDGER")) {
 		log("Error! This program (player's program) is not designed for starting\
