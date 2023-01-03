@@ -45,7 +45,7 @@ void posix_error(int code, const char *msg) /* Posix-style error */
     exit(0);
 }
 
-void gai_error(int code, const char *msg) /* Getaddrinfo-style error */
+void getaddrinfo_error(int code, const char *msg) /* Getaddrinfo-style error */
 {
     if (prog_name) fprintf(stderr, "[%s] ", prog_name);
     fprintf(stderr, "%s: %s\n", msg, gai_strerror(code));
@@ -243,7 +243,7 @@ static void sio_reverse(char s[])
 }
 
 /* sio_ltoa - Convert long to base b string (from K&R) */
-static void sio_ltoa(long v, char s[], int b) 
+void sio_ltoa(long v, char s[], int b) 
 {
     int c, i = 0;
     int neg = v < 0;
@@ -263,7 +263,7 @@ static void sio_ltoa(long v, char s[], int b)
 }
 
 /* sio_strlen - Return length of string (from K&R) */
-static size_t sio_strlen(const char s[])
+size_t sio_strlen(const char s[])
 {
     int i = 0;
 
@@ -276,51 +276,25 @@ static size_t sio_strlen(const char s[])
 /* Public Sio functions */
 /* $begin siopublic */
 
-ssize_t sio_puts(const char s[]) /* Put string */
+void sio_put(const char s[]) /* Put string */
 {
-    return write(STDOUT_FILENO, s, sio_strlen(s)); //line:csapp:siostrlen
+    Write(STDERR_FILENO, s, sio_strlen(s)); //line:csapp:siostrlen
 }
 
-ssize_t sio_putl(long v) /* Put long */
+void sio_put(long v) /* Put long */
 {
     char s[128];
     
     sio_ltoa(v, s, 10); /* Based on K&R itoa() */  //line:csapp:sioltoa
-    return sio_puts(s);
+    sio_put(s);
 }
 
 void sio_error(const char s[]) /* Put error message and exit */
 {
-    sio_puts(s);
+    sio_put(s);
     _exit(1);                                      //line:csapp:sioexit
 }
 /* $end siopublic */
-
-/*******************************
- * Wrappers for the SIO routines
- ******************************/
-ssize_t Sio_putl(long v)
-{
-    ssize_t n;
-  
-    if ((n = sio_putl(v)) < 0)
-	sio_error("Sio_putl error");
-    return n;
-}
-
-ssize_t Sio_puts(char s[])
-{
-    ssize_t n;
-  
-    if ((n = sio_puts(s)) < 0)
-	sio_error("Sio_puts error");
-    return n;
-}
-
-void Sio_error(char s[])
-{
-    sio_error(s);
-}
 
 /********************************
  * Wrappers for Unix I/O routines
@@ -613,7 +587,7 @@ void Getaddrinfo(const char *node, const char *service,
     int rc;
 
     if ((rc = getaddrinfo(node, service, hints, res)) != 0) 
-        gai_error(rc, "Getaddrinfo error");
+        getaddrinfo_error(rc, "Getaddrinfo error");
 }
 /* $end getaddrinfo */
 
@@ -624,7 +598,7 @@ void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host,
 
     if ((rc = getnameinfo(sa, salen, host, hostlen, serv, 
                           servlen, flags)) != 0) 
-        gai_error(rc, "Getnameinfo error");
+        getaddrinfo_error(rc, "Getnameinfo error");
 }
 
 void Freeaddrinfo(struct addrinfo *res)
@@ -722,6 +696,24 @@ pthread_t Pthread_self(void) {
  
 void Pthread_once(pthread_once_t *once_control, void (*init_function)()) {
     pthread_once(once_control, init_function);
+}
+
+void Pthread_mutex_lock(pthread_mutex_t *mutex) {
+    int rc;
+    if ((rc = pthread_mutex_lock(mutex)) != 0)
+        posix_error(rc, "Pthread_mutex_lock error");
+}
+
+void Pthread_mutex_unlock(pthread_mutex_t *mutex) {
+    int rc;
+    if ((rc = pthread_mutex_unlock(mutex)) != 0)
+        posix_error(rc, "Pthread_mutex_unlock error");
+}
+
+void Pthread_kill(pthread_t tid, int signal) {
+    int rc;
+    if ((rc = pthread_kill(tid, signal)) != 0)
+        posix_error(rc, "Pthread_kill error");
 }
 
 /*******************************

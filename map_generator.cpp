@@ -98,10 +98,13 @@ int main(int argc, char* argv[]) {
 		app_error("N must be power of 2");
 	}
 	if (N % NUM_THREAD != 0) {
-		app_error("N must be a multiple of NUM_THREAD");
+		app_error("N must be a multiple of NUM_THREAD (NUM_THREAD=%d)", NUM_THREAD);
 	}
 	if (N < 8) {
 		app_error("N must be greater or equal to 8");
+	}
+	if (N > 65536) {
+		app_error("N must be less or equal to 65536");
 	}
 
 	if (argc == 4) {
@@ -165,7 +168,11 @@ int main(int argc, char* argv[]) {
 	// Stage 3: Print the map out
 	// We use fwrite() to speed up writing
 	printf("%ld %ld\n", N, K);
-	fwrite((char*)is_mine, 1, N*N/8, stdout);
+	size_t byte_write = fwrite((char*)is_mine, 1, N*N/8, stdout);
+	if (byte_write != N*N/8) {
+		fprintf(stderr, "Error! Failed to write the map into the file.\n");
+		fprintf(stderr, "I want to write %ld bytes, but only %ld bytes are written.\n", N*N/8, byte_write);
+	}
 	fflush(stdout);
 	return 0;
 }

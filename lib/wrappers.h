@@ -5,6 +5,8 @@
 #ifndef __MINESWEEPER_WRAPPERS_H__
 #define __MINESWEEPER_WRAPPERS_H__
 
+#include <sys/mman.h>
+#include <sys/prctl.h>
 #include "csapp.h" // include all wrapper functions from csapp.h
 
 /* Create a one-way communication channel (pipe).
@@ -35,5 +37,16 @@ char* Getenv_must_exist(const char* name);
 /* Execute PATH with all arguments after PATH until
    a NULL pointer  */
 #define Execl(...) {execl(__VA_ARGS__); unix_error("execl error");}
+
+void Prctl(int option, unsigned long arg2);
+
+/* Open shared memory segment.  */
+int Shm_open(const char *name, int oflag, mode_t mode);
+
+/* Truncate the file FD is open on to LENGTH bytes.  */
+void Ftruncate(int fd, off_t length);
+
+/* Seek to a certain position on STREAM. */
+void Fseek(FILE *stream, long offset, int whence);
 
 #endif	// __MINESWEEPER_WRAPPERS_H__

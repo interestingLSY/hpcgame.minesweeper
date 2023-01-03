@@ -55,6 +55,10 @@ map_visualizer to a larger number, and recompile it.\n\
 P.S. the default value of DISPLAY_THRESHOLD_N is 2048.");
 	}
 
+	Fseek(map_file, 0, SEEK_SET);
+	char c;
+	while ((c = fgetc(map_file)) != '\n');
+	
 	is_mine = (char*)Malloc(N*N/8);
 	size_t byte_read = fread(is_mine, 1, N*N/8, map_file);
 	if (byte_read != N*N/8) {
@@ -68,7 +72,7 @@ P.S. the default value of DISPLAY_THRESHOLD_N is 2048.");
 				putchar('*');
 				mine_cnt += 1;
 			} else {
-				long cnt = test_is_mine(r-1, c-1) + test_is_mine(r-1, c) + test_is_mine(r-1, c+1)
+				char cnt = test_is_mine(r-1, c-1) + test_is_mine(r-1, c) + test_is_mine(r-1, c+1)
 						+ test_is_mine(r, c-1) + test_is_mine(r, c) + test_is_mine(r, c+1)
 						+ test_is_mine(r+1, c-1) + test_is_mine(r+1, c) + test_is_mine(r+1, c+1);
 				putchar(cnt+'0');

@@ -68,7 +68,7 @@ extern const char* prog_name;
 void unix_error(const char *msg);
 void posix_error(int code, const char *msg);
 void dns_error(const char *msg);
-void gai_error(int code, const char *msg);
+void getaddrinfo_error(int code, const char *msg);
 void app_error(const char *format, ...);
 
 /* Process control wrappers */
@@ -95,14 +95,12 @@ int Sigismember(const sigset_t *set, int signum);
 int Sigsuspend(const sigset_t *set);
 
 /* Sio (Signal-safe I/O) routines */
-ssize_t sio_puts(const char s[]);
-ssize_t sio_putl(long v);
+size_t sio_strlen(const char s[]);
+void sio_ltoa(long v, char s[], int b);
+void sio_put(const char s[]);
+void sio_put(long v);
 void sio_error(const char s[]);
-
-/* Sio wrappers */
-ssize_t Sio_puts(const char s[]);
-ssize_t Sio_putl(long v);
-void Sio_error(const char s[]);
+void sio_error(long l);
 
 /* Unix I/O wrappers */
 int Open(const char *pathname, int flags, mode_t mode);
@@ -170,6 +168,9 @@ void Pthread_detach(pthread_t tid);
 void Pthread_exit(void *retval);
 pthread_t Pthread_self(void);
 void Pthread_once(pthread_once_t *once_control, void (*init_function)());
+void Pthread_mutex_lock(pthread_mutex_t *mutex);
+void Pthread_mutex_unlock(pthread_mutex_t *mutex);
+void Pthread_kill(pthread_t tid, int signal);
 
 /* POSIX semaphore wrappers */
 void Sem_init(sem_t *sem, int pshared, unsigned int value);

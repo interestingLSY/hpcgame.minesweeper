@@ -38,3 +38,29 @@ char* Getenv_must_exist(const char* name) {
 	}
 	return result;
 }
+
+void Prctl(int option, unsigned long arg2) {
+	if (prctl(option, arg2) < 0) {
+		unix_error("prctl error");
+	}
+}
+
+int Shm_open(const char *name, int oflag, mode_t mode) {
+	int rc;
+	if ((rc = shm_open(name, oflag, mode)) == -1) {
+		unix_error("shm_open error");
+	}
+	return rc;
+}
+
+void Ftruncate(int fd, off_t length) {
+	if (ftruncate(fd, length) == -1) {
+		unix_error("ftruncate error");
+	}
+}
+
+void Fseek(FILE *stream, long offset, int whence) {
+	if (fseek(stream, offset, whence) == -1) {
+		unix_error("fseek error");
+	}
+}
