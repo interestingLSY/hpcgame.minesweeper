@@ -59,10 +59,10 @@
 		- 2 bytes for click_c
 		- 4 bytes for futex
 		- 4 bytes indicating how many grids are opened (-1 if the grid contains a mine)
-		- 2 bytes r1, 2 bytes c1
-		- 2 bytes r2, 2 bytes c2
+		- 2 bytes r1, 2 bytes c1, 2 bytes number in grid (r1, c1)
+		- 2 bytes r2, 2 bytes c2, 2 bytes number in grid (r2, c2)
 		- ...
-		- 2 bytes rK, 2 bytes cK
+		- 2 bytes rK, 2 bytes cK, 2 bytes number in grid (rK, cK)
 */
 #include <atomic>
 #include <utility>
@@ -95,7 +95,7 @@ constexpr int NUM_ACTIVE_WORKER_THREAD = 8;
 constexpr int NUM_SUMMARIZE_THREAD = 8;	
 
 // The spin amount in the two phase lock.
-constexpr int TWO_PHASE_LOCK_SPIN_AMUONT = 1024;
+constexpr int TWO_PHASE_LOCK_SPIN_AMUONT = 2048;
 
 long N, K, logN;	// The size of the map, the number of mines
 char* map_file_path;	// path to the map file
@@ -296,13 +296,14 @@ void worker_thread_bfs(
 	int click_r, int click_c,
 	const int level,
 	long &result_open_count,
-	unsigned short result_arr[MAX_OPEN_GRID][2]
+	unsigned short result_arr[MAX_OPEN_GRID][3]
 ) {
-	static constexpr long delta_xy[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+	static constexpr int delta_xy[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 	Queue &q = queues[level];
 	std::function<void(long, long)> append_to_result = [&](long r, long c) {
 		result_arr[result_open_count][0] = r;
 		result_arr[result_open_count][1] = c;
+		result_arr[result_open_count][2] = get_adj_mine(r, c);
 		result_open_count += 1;
 	};
 	result_open_count = 0;
@@ -313,14 +314,14 @@ void worker_thread_bfs(
 	while (!q.empty()) {
 		int r, c;
 		q.pop(r, c);
-		for (int k = 0; k < 4; ++k) {
+		for (int k = 0; k < 8; ++k) {
 			int new_r = r + delta_xy[k][0];
 			int new_c = c + delta_xy[k][1];
 			if (!test_is_vis(level, new_r, new_c) && !test_is_mine(new_r, new_c)) {
 				append_to_result(new_r, new_c);
 				set_is_vis(level, new_r, new_c);
 				if (!get_adj_mine(new_r, new_c)) {
-					q.push(r, c);
+					q.push(new_r, new_c);
 				}
 			}
 		}
@@ -356,6 +357,7 @@ void* worker_thread_routine(void* arg) {
 	sprintf(buf, "%d", channel_id);
 	Write(fd_to_pl, buf, strlen(buf));
 
+	// printf("is_mine %d\n", test_is_mine(1, 1));
 	// Go to 996!
 	while (true) {
 		// The two phase lock
@@ -384,7 +386,6 @@ void* worker_thread_routine(void* arg) {
 		// There is a new `click()` request
 		long click_r = SHM_CLICK_R(shm_pos);
 		long click_c = SHM_CLICK_C(shm_pos);
-			// printf("%ld %ld\n", click_r, click_c);
 		
 		if (test_is_mine(click_r, click_c)) {
 			// This grid contains a mine, BOOM SHAKALAKA!
@@ -396,6 +397,7 @@ void* worker_thread_routine(void* arg) {
 			SHM_OPENED_GRID_COUNT(shm_pos) = 1;
 			(*SHM_OPENED_GRID_ARR(shm_pos))[0][0] = click_r;
 			(*SHM_OPENED_GRID_ARR(shm_pos))[0][1] = click_c;
+			(*SHM_OPENED_GRID_ARR(shm_pos))[0][2] = get_adj_mine(click_r, click_c);
 		} else {
 			// This grid contains zero
 			// BFS is needed
@@ -404,6 +406,7 @@ void* worker_thread_routine(void* arg) {
 			worker_thread_bfs(
 				click_r, click_c, level, result_open_count,
 				*SHM_OPENED_GRID_ARR(shm_pos));
+			SHM_OPENED_GRID_COUNT(shm_pos) = result_open_count;
 			release_level(level);
 		}
 

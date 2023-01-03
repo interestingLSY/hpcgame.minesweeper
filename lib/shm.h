@@ -27,7 +27,7 @@
 #define SHM_CLICK_C(pos) (*((volatile unsigned short*)(pos+14)))
 // #define SHM_FUTEX(pos) ((unsigned int*)(pos+8))
 #define SHM_OPENED_GRID_COUNT(pos) (*((volatile int*)(pos+16)))
-#define SHM_OPENED_GRID_ARR(pos) ((unsigned short (*)[16384][2])(pos+20))
+#define SHM_OPENED_GRID_ARR(pos) ((unsigned short (*)[16384][3])(pos+20))
 // #define SHM_GRID_R(pos, index) (*((unsigned short*)((char*)(pos)+16+(index)*2)))
 // #define SHM_GRID_C(pos, index) (*((unsigned short*)((char*)(pos)+18+(index)*2)))
 

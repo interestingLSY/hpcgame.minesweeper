@@ -3,7 +3,7 @@
 CC 	= g++
 CXXFLAGS ?= -g -Ofast -std=c++23 -lpthread -lrt -Wall -march=native	# `-lrt` for `shm_open()`
 
-ANSWERS = naive naive-mt
+ANSWERS = naive naive-mt interact
 LIBS = csapp wrappers minesweeper_helpers log common shm futex queue
 EXES = judger game_server map_generator map_visualizer blank_counter
 

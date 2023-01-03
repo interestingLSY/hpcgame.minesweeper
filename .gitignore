@@ -13,6 +13,8 @@ game_server
 judger
 map_generator
 map_visualizer
+interact
+blank_counter
 naive
 naive-mt
 

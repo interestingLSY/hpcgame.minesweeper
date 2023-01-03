@@ -18,7 +18,8 @@ struct ClickResult {
 	// 一个长度为 reveal_count 的数组
 	// reveal_grid_r[i][0] 代表第 i 个被点开的格子所在的行
 	// reveal_grid_r[i][1] 代表第 i 个被点开的格子所在的列
-	unsigned short (*open_grid_pos)[16384][2];
+	// reveal_grid_r[i][3] 代表第 i 个被点开的格子中的数字
+	unsigned short (*open_grid_pos)[16384][3];
 };
 
 // Channel - 选手程序和 game server 间相互通信的信道

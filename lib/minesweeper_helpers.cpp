@@ -73,7 +73,7 @@ ClickResult Channel::click(long r, long c) {
 	// Wait for the game server to complete the request (by spinning)
 	while (!SHM_DONE_BIT(shm_pos)) {
 		if (SHM_SLEEPING_BIT(shm_pos)) {
-			int t = futex_wake(SHM_PENDING_BIT_PTR(shm_pos));
+			futex_wake(SHM_PENDING_BIT_PTR(shm_pos));
 		}
 	}
 	// Copy the result

@@ -45,7 +45,7 @@ char count_adj_mine(long r, long c) {
 	return cnt;
 }
 
-constexpr int delta_xy[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+constexpr int delta_xy[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
 queue<long> q;
 long bfs(long st_r, long st_c) {
@@ -56,7 +56,7 @@ long bfs(long st_r, long st_c) {
 		long r = q_front>>logN, c = q_front&(N-1);
 		q.pop();
 		count += 1;
-		for (int k = 0; k < 4; ++k) {
+		for (int k = 0; k < 8; ++k) {
 			int new_r = r + delta_xy[k][0], new_c = c + delta_xy[k][1];
 			if (!test_is_mine(new_r, new_c) && !test_is_vis(new_r, new_c)) {
 				if (count_adj_mine(new_r, new_c) == 0) {
