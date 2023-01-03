@@ -114,11 +114,12 @@ void sigchld_handler(int _) {
 			if (exit_status != 0) {
 				sio_log("Warning: The player's program exits with a non-zero exit code: ");
 				sio_put(exit_status); sio_put("\n");
-				if (WIFSIGNALED(status)) {
-					sio_log("The signal causing the player's program to terminate: ");
-					sio_put(WTERMSIG(status));
-					sio_put("\n");
-				}
+			}
+			if (WIFSIGNALED(status)) {
+				sio_log("Warning: The player's program is killed by a signal.\n");
+				sio_log("The signal causing the player's program to terminate: ");
+				sio_put(WTERMSIG(status));
+				sio_put("\n");
 			}
 			read_result_from_game_server_and_report();
 		} else if (pid == game_server_pid) {
