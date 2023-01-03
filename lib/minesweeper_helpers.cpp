@@ -53,7 +53,7 @@ Channel create_channel(void) {
 	return result;
 }
 
-ClickResult Channel::click(long r, long c) {
+ClickResult Channel::click(long r, long c, bool skip_when_reopen) {
 	if (r < 0 || c < 0 || r >= _N || c >= _N) {
 		log("Error! The player's program called `click(r, c)` with invalid arguments:\n");
 		log("R = %ld, C = %ld\n", r, c);
@@ -64,6 +64,7 @@ ClickResult Channel::click(long r, long c) {
 	// Fill in `click_r` and `click_c`
 	SHM_CLICK_R(shm_pos) = (unsigned short)r;
 	SHM_CLICK_C(shm_pos) = (unsigned short)c;
+	SHM_SKIP_WHEN_REOPEN_BIT(shm_pos) = skip_when_reopen;
 	
 	// Wake up the corresponding thread in the game server
 	SHM_PENDING_BIT(shm_pos) = 1;
@@ -81,6 +82,10 @@ ClickResult Channel::click(long r, long c) {
 	if (open_grid_count == -1) {
 		// The grid contains a mine, BOOM!
 		result.is_mine = true;
+	} else if (open_grid_count == -2 || open_grid_count == -3) {
+		// skipped because of re-open
+		result.is_mine = open_grid_count == -3;
+		result.is_skipped = true;
 	} else {
 		result.is_mine = false;
 		result.open_grid_count = open_grid_count;

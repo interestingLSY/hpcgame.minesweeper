@@ -52,13 +52,17 @@
 			(futex_wait), it sets this bit to 1. When the player's program wants to click,
 			it tests whether this bit is 1. If it is 1 then the player's program will
 			call `futex_wake()`.
-		- 1 byte: `dome bit`. When the game server completes the request, it
+		- 1 byte: `done bit`. When the game server completes the request, it
 			sets this bit to 1.
-		- 1 bytes padding
+		- 1 bytes `skip_when_reopen bit`. If it is 1 and the target grid of the
+			current request has been opened before, then the game server will
+			put -2 （or -3, if the grid contains a mine） in "bytes indicating
+			how many grids are opened" and returns immediately.
 		- 2 bytes for click_r
 		- 2 bytes for click_c
-		- 4 bytes for futex
-		- 4 bytes indicating how many grids are opened (-1 if the grid contains a mine)
+		- 4 bytes indicating how many grids are opened (-1 if the grid contains a mine,
+			-2 if `re_report bit` is 0 and the target grid of the current request
+			has been opened before)
 		- 2 bytes r1, 2 bytes c1, 2 bytes number in grid (r1, c1)
 		- 2 bytes r2, 2 bytes c2, 2 bytes number in grid (r2, c2)
 		- ...
@@ -386,28 +390,36 @@ void* worker_thread_routine(void* arg) {
 		// There is a new `click()` request
 		long click_r = SHM_CLICK_R(shm_pos);
 		long click_c = SHM_CLICK_C(shm_pos);
+		bool skip_when_reopen = SHM_SKIP_WHEN_REOPEN_BIT(shm_pos);
 		
-		if (test_is_mine(click_r, click_c)) {
-			// This grid contains a mine, BOOM SHAKALAKA!
-			set_is_open(click_r, click_c);
-			SHM_OPENED_GRID_COUNT(shm_pos) = -1;
-		} else if (get_adj_mine(click_r, click_c)) {
-			// This grid contains a non-zero number
-			set_is_open(click_r, click_c);
-			SHM_OPENED_GRID_COUNT(shm_pos) = 1;
-			(*SHM_OPENED_GRID_ARR(shm_pos))[0][0] = click_r;
-			(*SHM_OPENED_GRID_ARR(shm_pos))[0][1] = click_c;
-			(*SHM_OPENED_GRID_ARR(shm_pos))[0][2] = get_adj_mine(click_r, click_c);
+		if (skip_when_reopen && test_is_open(click_r, click_c)) {
+			// This grid has been opened before, and the player's program says
+			// that "If the grid has been opened before, plz skip it"
+			// So we just put -2 (non-mine) or -3 (is-mine) into SHM_OPEN_GRID_COUNT and return
+			SHM_OPENED_GRID_COUNT(shm_pos) = test_is_mine(click_r, click_c) ? -3 : -2;
 		} else {
-			// This grid contains zero
-			// BFS is needed
-			int level = find_available_level();
-			long result_open_count = 0;
-			worker_thread_bfs(
-				click_r, click_c, level, result_open_count,
-				*SHM_OPENED_GRID_ARR(shm_pos));
-			SHM_OPENED_GRID_COUNT(shm_pos) = result_open_count;
-			release_level(level);
+			if (test_is_mine(click_r, click_c)) {
+				// This grid contains a mine, BOOM SHAKALAKA!
+				set_is_open(click_r, click_c);
+				SHM_OPENED_GRID_COUNT(shm_pos) = -1;
+			} else if (get_adj_mine(click_r, click_c)) {
+				// This grid contains a non-zero number
+				set_is_open(click_r, click_c);
+				SHM_OPENED_GRID_COUNT(shm_pos) = 1;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][0] = click_r;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][1] = click_c;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][2] = get_adj_mine(click_r, click_c);
+			} else {
+				// This grid contains zero
+				// BFS is needed
+				int level = find_available_level();
+				long result_open_count = 0;
+				worker_thread_bfs(
+					click_r, click_c, level, result_open_count,
+					*SHM_OPENED_GRID_ARR(shm_pos));
+				SHM_OPENED_GRID_COUNT(shm_pos) = result_open_count;
+				release_level(level);
+			}
 		}
 
 		// Done

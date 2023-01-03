@@ -81,7 +81,7 @@ int main() {
 		}
 
 		// Click it
-		ClickResult result = channel.click(click_r, click_c);
+		ClickResult result = channel.click(click_r, click_c, false);
 
 		// Parse the click result
 		if (result.is_mine) {

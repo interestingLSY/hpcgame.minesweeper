@@ -23,7 +23,7 @@ void* thread_routine(void* arg) {
 	for (long r = row_start; r < row_end; ++r) {
 		// printf("R = %ld\n", r);
 		for (long c = 0; c < N; ++c) {
-			channel.click(r, c);
+			channel.click(r, c, true);
 		}
 	}
 	return 0;

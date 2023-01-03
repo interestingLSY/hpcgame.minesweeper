@@ -10,7 +10,12 @@ struct ClickResult {
 	// 点击的方格是不是地雷
 	bool is_mine;
 
-	// 如果点击的方格不是地雷，那么这个变量代表有多少个方格被点开
+	// 是否因为“之前点击过这个格子”而被跳过
+	// Recap: 如果在调用 click 时指定了 skip_when_reopen = true，并且这个方格之前被点过（包括
+	// 被本线程点过或被其他线程点过），那么为了节省时间，game server 会直接返回“跳过！”
+	bool is_skipped;
+
+	// 如果点击的方格不是地雷，而且没有被 skipped，那么这个变量代表有多少个方格被点开
 	// 别忘了，如果你点的方格中的数字是零，那么它周围的方格也会被点开
 	// 并且这个过程可以递归
 	int open_grid_count;
@@ -30,7 +35,7 @@ private:
 
 	char* shm_pos;
 public:
-	ClickResult click(long r, long c);
+	ClickResult click(long r, long c, bool skip_when_reopen);
 	friend Channel create_channel(void);
 };
 
