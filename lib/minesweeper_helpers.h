@@ -20,10 +20,10 @@ struct ClickResult {
 	// 并且这个过程可以递归
 	int open_grid_count;
 
-	// 一个长度为 reveal_count 的数组
-	// reveal_grid_r[i][0] 代表第 i 个被点开的格子所在的行
-	// reveal_grid_r[i][1] 代表第 i 个被点开的格子所在的列
-	// reveal_grid_r[i][3] 代表第 i 个被点开的格子中的数字
+	// 一个长度为 open_grid_count 的数组
+	// open_grid_pos[i][0] 代表第 i 个被点开的格子所在的行
+	// open_grid_pos[i][1] 代表第 i 个被点开的格子所在的列
+	// open_grid_pos[i][3] 代表第 i 个被点开的格子中的数字
 	unsigned short (*open_grid_pos)[16384][3];
 };
 
