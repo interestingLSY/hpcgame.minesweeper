@@ -13,11 +13,12 @@ game_server
 judger
 map_generator
 map_visualizer
-interact
 blank_counter
+template
 naive
 naive-mt
 naive-optim
+interact
 simple-expand-single-thread
 
 # maps & handout

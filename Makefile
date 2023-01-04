@@ -3,7 +3,7 @@
 CC 	= g++
 CXXFLAGS ?= -g -Ofast -std=c++17 -lpthread -lrt -Wall -march=native	# `-lrt` for `shm_open()`
 
-ANSWERS = naive naive-mt naive-optim interact simple-expand-single-thread
+ANSWERS = template naive naive-mt naive-optim interact simple-expand-single-thread 
 LIBS = csapp wrappers minesweeper_helpers log common shm futex queue
 EXES = judger game_server map_generator map_visualizer blank_counter
 
@@ -41,6 +41,8 @@ handout: all
 	cp lib/minesweeper_helpers.h minesweeper_handout/.
 	# copy makefile
 	cp Makefile_handout.mk minesweeper_handout/Makefile
+	# copy answer template
+	cp answer/template.cpp minesweeper_handout/answer.cpp
 
 clean:
 	rm -rf *.o $(EXES) $(ANSWERS)
