@@ -20,12 +20,16 @@ naive_mt
 naive_optim
 interact
 expand_with_queue
+expand_with_queue_mt
 simple_expand_single_thread
 
 # maps & handout
 map/
 handout/
 minesweeper_handout/
+
+# output file of gperf
+gmon.out
 
 # ---> C++
 # Prerequisites
