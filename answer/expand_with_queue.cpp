@@ -1,6 +1,6 @@
 /*
 	expand_with_queue.cpp - A single threaded solution, with amazing accuracy (~0.01%
-	mine hit rate) and a acceptable speed.
+	mine hit rate) and an acceptable speed.
 */
 #include <functional>
 #include <utility>
