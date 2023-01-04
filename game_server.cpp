@@ -75,7 +75,6 @@
 #include <utility>
 #include <vector>
 #include <climits>
-#include <stdatomic.h>
 #include <functional>
 #include "lib/wrappers.h"
 #include "lib/log.h"
