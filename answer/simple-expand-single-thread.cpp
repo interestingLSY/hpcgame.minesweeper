@@ -103,7 +103,7 @@ int main() {
 
 	int last_r = 0;
 	click_and_put_result(0, 0);
-	for (int i = 0; i < 128 && cnt_empty_opened < N*N-K; ++i) {
+	for (int i = 0; i < 128 && cnt_empty_opened < (long)N*N-K; ++i) {
 		// printf("%ld\n", cnt_empty_opened);
 		for (int r = max(0, last_r-1); r < N; ++r) {
 			for (int c = 0; c < N; ++c) {
@@ -127,7 +127,7 @@ int main() {
 	}
 
 	for (int r = 0; r < N; ++r) {
-		for (int c = 0; c < N && cnt_empty_opened < N*N-K; ++c) {
+		for (int c = 0; c < N && cnt_empty_opened < (long)N*N-K; ++c) {
 			if (map[r][c] == MAP_UNKNOWN) {
 				click_and_put_result(r, c);
 				while (try_solve_region(max(r-7, 0), max(c-7, 0), min(r+7, N-1), min(c+7, N-1)));
