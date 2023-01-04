@@ -23,6 +23,7 @@ simple-expand-single-thread
 # maps & handout
 map/
 handout/
+minesweeper_handout/
 
 # ---> C++
 # Prerequisites
