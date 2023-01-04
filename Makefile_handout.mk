@@ -8,7 +8,7 @@ EXES = judger game_server map_generator map_visualizer blank_counter naive naive
 
 LIB_OBJS = $(foreach x, $(LIBS), $(addsuffix .o, $(x)))
 
-.PHONY: all clean
+.PHONY: all clean handin
 
 all: $(EXES)
 
@@ -20,6 +20,11 @@ all: $(EXES)
 
 $(EXES): $$@.o $(LIB_OBJS)
 	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
+
+handin:
+	# create the .zip file
+	rm -f answer.zip
+	zip answer.zip answer.cpp
 
 clean:
 	rm -rf *.o $(EXES)
