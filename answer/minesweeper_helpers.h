@@ -1,1 +1,1 @@
-/home/intlsy/桌面/Projects/hpcgame.minesweeper/lib/minesweeper_helpers.h
+../lib/minesweeper_helpers.h

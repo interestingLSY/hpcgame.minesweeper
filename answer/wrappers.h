@@ -1,1 +1,1 @@
-/home/intlsy/桌面/Projects/hpcgame.minesweeper/lib/wrappers.h
+../lib/wrappers.h
