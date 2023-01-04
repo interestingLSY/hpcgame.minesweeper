@@ -77,6 +77,7 @@ ClickResult Channel::click(long r, long c, bool skip_when_reopen) {
 	SHM_CLICK_R(shm_pos) = (unsigned short)r;
 	SHM_CLICK_C(shm_pos) = (unsigned short)c;
 	SHM_SKIP_WHEN_REOPEN_BIT(shm_pos) = skip_when_reopen;
+	SHM_DO_NOT_EXPAND_BIT(shm_pos) = 0;
 	
 	// Wake up the corresponding thread in the game server
 	SHM_PENDING_BIT(shm_pos) = 1;
@@ -101,6 +102,46 @@ ClickResult Channel::click(long r, long c, bool skip_when_reopen) {
 	} else {
 		result.is_mine = false;
 		result.open_grid_count = open_grid_count;
+		result.open_grid_pos = SHM_OPENED_GRID_ARR(shm_pos);
+	}
+	SHM_DONE_BIT(shm_pos) = 0;
+	return result;
+}
+
+ClickResult Channel::click_do_not_expand(long r, long c) {
+	if (r < 0 || c < 0 || r >= _N || c >= _N) {
+		log("Error! The player's program called `click(r, c)` with invalid arguments:\n");
+		log("R = %ld, C = %ld\n", r, c);
+		exit(1);
+	}
+	char* shm_pos = this->shm_pos;
+	ClickResult result;
+	result.is_skipped = false;
+	SHM_CLICK_R(shm_pos) = (unsigned short)r;
+	SHM_CLICK_C(shm_pos) = (unsigned short)c;
+	SHM_SKIP_WHEN_REOPEN_BIT(shm_pos) = 0;
+	SHM_DO_NOT_EXPAND_BIT(shm_pos) = 1;
+	
+	// Wake up the corresponding thread in the game server
+	SHM_PENDING_BIT(shm_pos) = 1;
+ 	if (SHM_SLEEPING_BIT(shm_pos)) {
+		futex_wake(SHM_PENDING_BIT_PTR(shm_pos));
+	}
+	// Wait for the game server to complete the request (by spinning)
+	while (!SHM_DONE_BIT(shm_pos)) {
+		if (SHM_SLEEPING_BIT(shm_pos)) {
+			futex_wake(SHM_PENDING_BIT_PTR(shm_pos));
+		}
+	}
+	// Copy the result
+	int open_grid_count = SHM_OPENED_GRID_COUNT(shm_pos);
+	if (open_grid_count == -1) {
+		// The grid contains a mine, BOOM!
+		result.is_mine = true;
+	} else {
+		result.is_mine = false;
+		assert (open_grid_count == 1);
+		result.open_grid_count = 1;
 		result.open_grid_pos = SHM_OPENED_GRID_ARR(shm_pos);
 	}
 	SHM_DONE_BIT(shm_pos) = 0;

@@ -38,6 +38,7 @@ private:
 	char* shm_pos;
 public:
 	ClickResult click(long r, long c, bool skip_when_reopen);
+	ClickResult click_do_not_expand(long r, long c);
 	friend Channel create_channel(void);
 };
 

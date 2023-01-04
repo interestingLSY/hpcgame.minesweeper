@@ -46,18 +46,21 @@
 		Each channel has a shared memory (shm) region of `CHANNEL_SHM_SIZE` bytes,
 	where `CHANNEL_SHM_SIZE` is defined in `common.h`. 
 		Memory layout:
-		- 1 byte: `pending bit`. When the player's program wants to click, it sets this
+		- 4 byte: `pending bit`. When the player's program wants to click, it sets this
 			bit to 1 first.
-		- 1 byte: `sleeping bit`. When the game server is about to enter the second phase
+		- 4 byte: `sleeping bit`. When the game server is about to enter the second phase
 			(futex_wait), it sets this bit to 1. When the player's program wants to click,
 			it tests whether this bit is 1. If it is 1 then the player's program will
 			call `futex_wake()`.
-		- 1 byte: `done bit`. When the game server completes the request, it
+		- 4 byte: `done bit`. When the game server completes the request, it
 			sets this bit to 1.
-		- 1 bytes `skip_when_reopen bit`. If it is 1 and the target grid of the
+		- 4 bytes `skip_when_reopen bit`. If it is 1 and the target grid of the
 			current request has been opened before, then the game server will
 			put -2 （or -3, if the grid contains a mine） in "bytes indicating
 			how many grids are opened" and returns immediately.
+		- 4 bytes `do_not_expand_bit`. If it is 1, then we only open the target
+			grid, without "open the adjacent grids if the clicked grid contains a
+			'0'". In other words, "间接点开" will not be proceed.
 		- 2 bytes for click_r
 		- 2 bytes for click_c
 		- 4 bytes indicating how many grids are opened (-1 if the grid contains a mine,
@@ -391,8 +394,19 @@ void* worker_thread_routine(void* arg) {
 		long click_r = SHM_CLICK_R(shm_pos);
 		long click_c = SHM_CLICK_C(shm_pos);
 		bool skip_when_reopen = SHM_SKIP_WHEN_REOPEN_BIT(shm_pos);
+		bool do_not_expand = SHM_DO_NOT_EXPAND_BIT(shm_pos);
 		
-		if (skip_when_reopen && test_is_open(click_r, click_c)) {
+		if (do_not_expand) {
+			set_is_open(click_r, click_c);
+			if (test_is_mine(click_r, click_c)) {
+				SHM_OPENED_GRID_COUNT(shm_pos) = -1;
+			} else {
+				SHM_OPENED_GRID_COUNT(shm_pos) = 1;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][0] = click_r;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][1] = click_c;
+				(*SHM_OPENED_GRID_ARR(shm_pos))[0][2] = get_adj_mine(click_r, click_c);
+			}
+		} else if (skip_when_reopen && test_is_open(click_r, click_c)) {
 			// This grid has been opened before, and the player's program says
 			// that "If the grid has been opened before, plz skip it"
 			// So we just put -2 (non-mine) or -3 (is-mine) into SHM_OPEN_GRID_COUNT and return

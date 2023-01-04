@@ -24,13 +24,11 @@
 #define SHM_SLEEPING_BIT_PTR(pos) (((unsigned int*)(pos+4)))
 #define SHM_DONE_BIT(pos) (*((volatile unsigned int*)(pos+8)))
 #define SHM_SKIP_WHEN_REOPEN_BIT(pos) (*((volatile unsigned int*)(pos+12)))
-#define SHM_CLICK_R(pos) (*((volatile unsigned short*)(pos+16)))
-#define SHM_CLICK_C(pos) (*((volatile unsigned short*)(pos+18)))
-// #define SHM_FUTEX(pos) ((unsigned int*)(pos+8))
-#define SHM_OPENED_GRID_COUNT(pos) (*((volatile int*)(pos+20)))
-#define SHM_OPENED_GRID_ARR(pos) ((unsigned short (*)[16384][3])(pos+24))
-// #define SHM_GRID_R(pos, index) (*((unsigned short*)((char*)(pos)+16+(index)*2)))
-// #define SHM_GRID_C(pos, index) (*((unsigned short*)((char*)(pos)+18+(index)*2)))
+#define SHM_DO_NOT_EXPAND_BIT(pos) (*((volatile unsigned int*)(pos+16)))
+#define SHM_CLICK_R(pos) (*((volatile unsigned short*)(pos+20)))
+#define SHM_CLICK_C(pos) (*((volatile unsigned short*)(pos+22)))
+#define SHM_OPENED_GRID_COUNT(pos) (*((volatile int*)(pos+24)))
+#define SHM_OPENED_GRID_ARR(pos) ((unsigned short (*)[16384][3])(pos+28))
 
 // Open the shared memory (shm), and return a pointer pointing to its head
 char* open_shm();
