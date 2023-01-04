@@ -17,6 +17,7 @@ interact
 blank_counter
 naive
 naive-mt
+naive-optim
 simple-expand-single-thread
 
 # maps & handout

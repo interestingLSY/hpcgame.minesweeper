@@ -49,4 +49,12 @@ void Ftruncate(int fd, off_t length);
 /* Seek to a certain position on STREAM. */
 void Fseek(FILE *stream, long offset, int whence);
 
+/* Set cancelability state of current thread to STATE, returning old
+   state in *OLDSTATE if OLDSTATE is not NULL.  */
+void Pthread_setcancelstate(int state, int* oldstate);
+
+/* Set cancellation state of current thread to TYPE, returning the old
+   type in *OLDTYPE if OLDTYPE is not NULL.  */
+void Pthread_setcanceltype(int type, int* oldtype);
+
 #endif	// __MINESWEEPER_WRAPPERS_H__

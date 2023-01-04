@@ -64,3 +64,17 @@ void Fseek(FILE *stream, long offset, int whence) {
 		unix_error("fseek error");
 	}
 }
+
+void Pthread_setcancelstate(int state, int* oldstate) {
+	int rc;
+	if ((rc = pthread_setcancelstate(state, oldstate)) < 0) {
+		posix_error(rc, "pthread_setcancelstate error");
+	}
+}
+
+void Pthread_setcanceltype(int type, int* oldtype) {
+	int rc;
+	if ((rc = pthread_setcanceltype(type, oldtype)) < 0) {
+		posix_error(rc, "pthread_setcanceltype error");
+	}
+}

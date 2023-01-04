@@ -215,7 +215,7 @@ void* summarize_thread_routine(void* arg) {
 void summarize() {
 	kill_worker_threads();
 	if (N%NUM_SUMMARIZE_THREAD != 0) {
-		app_error("NUM_SUMMARIZE must be a factor of N.");
+		app_error("NUM_SUMMARIZE_THREAD must be a factor of N.");
 	}
 	// Create the threads for counting
 	pthread_t tids[NUM_SUMMARIZE_THREAD];
@@ -346,6 +346,9 @@ void worker_thread_bfs(
 // worker_thread_routine - Thread routine for a worker thread
 void* worker_thread_routine(void* arg) {
 	add_worker_thread_tid(Pthread_self());
+	// Make the thread cancellable
+	Pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	Pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	// Create a new channel
 	int channel_id = next_channel_id.fetch_add(1);
@@ -452,7 +455,7 @@ void* worker_thread_routine(void* arg) {
 void kill_worker_threads() {
 	Pthread_mutex_lock(&worker_thread_tids_mutex);
 	for (pthread_t tid : worker_thread_tids) {
-		// Pthread_kill(tid, SIGKILL); TODO
+		Pthread_cancel(tid);
 	}
 	Pthread_mutex_unlock(&worker_thread_tids_mutex);
 }
