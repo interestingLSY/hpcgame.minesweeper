@@ -1,5 +1,5 @@
 /*
-	naive-mt.cpp - A naive solution, with multithread optimization
+	naive_mt.cpp - A naive solution, with multithread optimization
 	This solution just clicks all grids one by one, using multiple threads.
 
 		It summons `THREAD_COUNT` threads. The i-th thread is responsible for 

@@ -16,10 +16,11 @@ map_visualizer
 blank_counter
 template
 naive
-naive-mt
-naive-optim
+naive_mt
+naive_optim
 interact
-simple-expand-single-thread
+expand_with_queue
+simple_expand_single_thread
 
 # maps & handout
 map/
