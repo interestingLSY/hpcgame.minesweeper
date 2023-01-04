@@ -274,9 +274,9 @@ void read_result_from_game_server_and_report() {
 		&status, &N, &K, &cnt_non_mine, &cnt_is_mine) == 5);
 	// Print it out
 	log("Result:\n");
-	log("点开的非雷格子: %ld/%ld (%.2f%%)\n",
+	log("点开的非雷格子: %ld/%ld (%.4f%%)\n",
 		cnt_non_mine, N*N-K, (double)cnt_non_mine/(N*N-K)*100);
-	log("点开的雷: %ld/%ld (%.2f%%)\n",
+	log("点开的雷: %ld/%ld (%.4f%%)\n",
 		cnt_is_mine, K, (double)cnt_is_mine/K*100);
 	// Exit
 	exit(0);
