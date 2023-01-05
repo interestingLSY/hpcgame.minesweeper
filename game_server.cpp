@@ -249,11 +249,6 @@ void summarize() {
 // A vector for maintaining all the tids of worker threads.
 pthread_mutex_t worker_thread_tids_mutex = PTHREAD_MUTEX_INITIALIZER;
 vector<pthread_t> worker_thread_tids;
-void add_worker_thread_tid(pthread_t tid) {
-	Pthread_mutex_lock(&worker_thread_tids_mutex);
-	worker_thread_tids.push_back(tid);
-	Pthread_mutex_unlock(&worker_thread_tids_mutex);
-}
 
 // The channel_id of the next channel, starting from 0
 atomic<int> next_channel_id = 0;
@@ -344,10 +339,12 @@ void worker_thread_bfs(
 
 // worker_thread_routine - Thread routine for a worker thread
 void* worker_thread_routine(void* arg) {
-	add_worker_thread_tid(Pthread_self());
+	Pthread_mutex_lock(&worker_thread_tids_mutex);
 	// Make the thread cancellable
 	Pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	Pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	worker_thread_tids.push_back(Pthread_self());
+	Pthread_mutex_unlock(&worker_thread_tids_mutex);
 
 	// Create a new channel
 	int channel_id = next_channel_id.fetch_add(1);
@@ -356,6 +353,7 @@ void* worker_thread_routine(void* arg) {
 		sprintf(buf, "Error! The player's program has opened too many channels. Limit: %d", MAX_CHANNEL);
 		report_error_to_judger(buf);
 		kill_worker_threads();
+		exit(0);
 		return NULL;
 	}
 	char* shm_pos = shm_start + CHANNEL_SHM_SIZE*channel_id;
