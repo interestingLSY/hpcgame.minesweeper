@@ -15,5 +15,4 @@ void init_shm_region(char* pos) {
 	SHM_PENDING_BIT(pos) = 0;
 	SHM_SLEEPING_BIT(pos) = 0;
 	SHM_DONE_BIT(pos) = 0;
-	// *SHM_FUTEX(pos) = 0;	// initially unavailable
 }

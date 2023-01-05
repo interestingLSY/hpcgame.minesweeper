@@ -7,6 +7,7 @@
 constexpr int MAXN = 256;
 
 long N, K;
+int constant_A;
 
 // -1: unknown. -2: mine. >=0: empty grid
 char map[MAXN][MAXN];
@@ -49,7 +50,7 @@ void show_map() {
 int main() {
 	memset(map, 0xff, sizeof(map));	// set to -1
 
-	minesweeper_init(N, K);
+	minesweeper_init(N, K, constant_A);
 	
 	if (N > MAXN) {
 		printf("We strongly do not advise you to use this solution on maps with side length > %d\n", MAXN);

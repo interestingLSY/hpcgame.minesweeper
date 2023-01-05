@@ -8,7 +8,7 @@
 	the game server, which sends the result to the judger. The judger then calculate
 	the player's score.
 
-	Usage: ./judger <path/to/player's/program> <path/to/map> [time_limit (In seconds, default: +inf)] [path/to/game/server (Default: ./game_server)]
+	Usage: ./judger <path/to/player's/program> <path/to/map> [constant A (default: 8)] [time_limit (In seconds, default: +inf)] [path/to/game/server (Default: ./game_server)]
 
 	Pipes:
 		When judging, the three programs (player, game server,judger) are connected by pipes as follow:
@@ -36,7 +36,7 @@
 #include "lib/shm.h"
 
 void usage(char* prog_name) {
-	printf("Usage: %s <path/to/player's/program> <path/to/map> [time_limit (In seconds, default: +inf)] [path/to/game/server (Default: ./game_server)]\n", prog_name);
+	printf("Usage: %s <path/to/player's/program> <path/to/map> [constant A] [time_limit (In seconds, default: +inf)] [path/to/game/server (Default: ./game_server)]\n", prog_name);
 	exit(0);
 }
 
@@ -75,6 +75,7 @@ char* player_path;	// path to the player's program (executable file)
 char* map_file_path;	// path to the map
 char* game_server_path;	// path to the game server (executable file)
 int time_limit;			// time limit, in seconds
+int constant_A;
 
 int fd_pl_to_gs, fd_gs_from_pl;
 int fd_pl_from_gs, fd_gs_to_pl;
@@ -238,6 +239,8 @@ void create_player() {
 		Setenv("MINESWEEPER_FD_PL_TO_GS", buf, true);
 		sprintf(buf, "%d", fd_pl_from_gs);
 		Setenv("MINESWEEPER_FD_PL_FROM_GS", buf, true);
+		sprintf(buf, "%d", constant_A);
+		Setenv("MINESWEEPER_CONSTANT_A", buf, true);
 		Setenv("MINESWEEPER_LAUNCHED_BY_JUDGER", "1", true);
 
 		// Reset signal handlers
@@ -284,7 +287,7 @@ void read_result_from_game_server_and_report() {
 
 int main(int argc, char* argv[]) {
 	prog_name = "Judger";
-	if (argc != 3 && argc != 4 && argc != 5) {
+	if (argc != 3 && argc != 4 && argc != 5 && argc != 6) {
 		usage(argv[0]);
 	}
 
@@ -292,13 +295,18 @@ int main(int argc, char* argv[]) {
 	player_path = argv[1];
 	map_file_path = argv[2];
 	if (argc >= 4) {
-		time_limit = atoi(argv[3]);
+		constant_A = atoi(argv[3]);
+	} else {
+		constant_A = 8;
+	}
+	if (argc >= 5) {
+		time_limit = atoi(argv[4]);
 		if (time_limit <= 0) app_error("Bad value for `time_limit`");
 	} else {
 		time_limit = INT_MAX;
 	}
-	if (argc >= 5) {
-		game_server_path = argv[4];
+	if (argc >= 6) {
+		game_server_path = argv[5];
 	} else {
 		game_server_path = (char*)"./game_server";
 	}

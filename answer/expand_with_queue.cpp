@@ -26,7 +26,9 @@ std::mt19937 rng(0);
 
 // N: 地图的边长
 // K: 地图中的雷的数量
+// constant_A: 评分过程中用到的参数 A
 long N, K;
+int constant_A;
 
 Channel channel;
 
@@ -152,7 +154,7 @@ void expand(int start_r, int start_c) {
 }
 
 int main() {
-	minesweeper_init(N, K);
+	minesweeper_init(N, K, constant_A);
 
 	for (int i = 0; i < N; ++i) {
 		map[i] = (char*)Malloc(N);

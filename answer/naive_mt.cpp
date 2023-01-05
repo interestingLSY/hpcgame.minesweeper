@@ -14,6 +14,7 @@
 constexpr int THREAD_COUNT = 8;
 
 long N, K;
+int constant_A;
 
 void* thread_routine(void* arg) {
 	long thread_id = (long)arg;
@@ -30,7 +31,7 @@ void* thread_routine(void* arg) {
 }
 
 int main() {
-	minesweeper_init(N, K);
+	minesweeper_init(N, K, constant_A);
 		
 	// Summon those worker threads
 	pthread_t tids[THREAD_COUNT];

@@ -8,6 +8,8 @@ constexpr int MAXN = 65536;
 constexpr int delta_xy[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
 int N, K;
+int constant_A;
+
 Channel channel;
 
 long cnt_empty_opened = 0;
@@ -94,7 +96,7 @@ bool try_solve_region(int r1, int c1, int r2, int c2) {
 }
 
 int main() {
-	minesweeper_init(N, K);
+	minesweeper_init(N, K, constant_A);
 	for (int i = 0; i < N; ++i) {
 		map[i] = (char*)Malloc(N);
 		memset(map[i], MAP_UNKNOWN, N);

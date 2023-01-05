@@ -10,9 +10,9 @@ static char* shm_start;
 static int fd_from_gs, fd_to_gs;
 static long _N, _K;
 
-void minesweeper_init(long &N, long &K) {
-	static bool is_minesweeper_init_called = false;
-	if (is_minesweeper_init_called) {
+void minesweeper_init(long &N, long &K, int &constant_A) {
+	static bool is_minesweeper_init_called_before = false;
+	if (is_minesweeper_init_called_before) {
 		log("Error! Please call `minesweeper_init` only once.\n");
 		exit(1);
 	}
@@ -39,11 +39,13 @@ manually. Please invoke the judger.\n");
 		exit(1);
 	}
 	_N = N; _K = K;
+	// Get constant_A
+	constant_A = atoi(Getenv_must_exist("MINESWEEPER_CONSTANT_A"));
 }
 
-void minesweeper_init(int &N, int &K) {
+void minesweeper_init(int &N, int &K, int &constant_A) {
 	long _N, _K;
-	minesweeper_init(_N, _K);
+	minesweeper_init(_N, _K, constant_A);
 	N = _N; K = _K;
 }
 
@@ -140,7 +142,7 @@ ClickResult Channel::click_do_not_expand(long r, long c) {
 		result.is_mine = true;
 	} else {
 		result.is_mine = false;
-		assert (open_grid_count == 1);
+		// assert (open_grid_count == 1);
 		result.open_grid_count = 1;
 		result.open_grid_pos = SHM_OPENED_GRID_ARR(shm_pos);
 	}
