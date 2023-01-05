@@ -9,7 +9,7 @@ EXES = judger game_server map_generator map_visualizer blank_counter
 
 # files to be put into the `handout` directory
 HANDOUT_FILE_LIST = game_server.cpp judger.cpp map_generator.cpp map_visualizer.cpp \
-	answer/naive.cpp answer/naive-optim.cpp generate_example_maps.py
+	answer/naive.cpp answer/naive_optim.cpp answer/interact.cpp generate_example_maps.py
 
 LIB_OBJS = $(foreach x, $(LIBS), $(addsuffix .o, $(x)))
 

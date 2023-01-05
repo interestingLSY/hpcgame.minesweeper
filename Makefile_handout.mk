@@ -4,7 +4,7 @@ CC 	= g++
 CXXFLAGS ?= -g -Ofast -std=c++17 -lpthread -lrt -Wall -march=native
 
 LIBS = csapp wrappers minesweeper_helpers log common shm futex queue
-EXES = judger game_server map_generator map_visualizer blank_counter naive naive_optim 
+EXES = judger game_server map_generator map_visualizer naive naive_optim interact
 
 LIB_OBJS = $(foreach x, $(LIBS), $(addsuffix .o, $(x)))
 
