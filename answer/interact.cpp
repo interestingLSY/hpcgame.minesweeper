@@ -12,8 +12,9 @@ int constant_A;
 // -1: unknown. -2: mine. >=0: empty grid
 char map[MAXN][MAXN];
 
+// Print the map on the terminal
 void show_map() {
-	// Print the top header
+	// Print the header
 	printf("        ");
 	for (int i = 0; i < N; ++i)
 		printf("%c", i%10+'0');
@@ -36,7 +37,7 @@ void show_map() {
 		printf("|%d", r);
 		putchar('\n');
 	}
-	// Print the bottom header
+	// Print the footer
 	putchar('\t');
 	for (int i = 0; i < N; ++i)
 		putchar('-');
@@ -60,6 +61,7 @@ int main() {
 		exit(1);
 	}
 
+	// 创建用于和 game server 通信的 Channel
 	Channel channel = create_channel();
 
 	while (true) {
@@ -90,6 +92,7 @@ int main() {
 			map[click_r][click_c] = -2;
 		} else {
 			printf("%d grids opened\n", result.open_grid_count);
+			// 遍历所有点开的格子，并把它们标注在 map[][] 数组中
 			auto arr = *result.open_grid_pos;
 			for (int i = 0; i < result.open_grid_count; ++i) {
 				map[arr[i][0]][arr[i][1]] = arr[i][2];
