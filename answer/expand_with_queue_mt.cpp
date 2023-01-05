@@ -1,5 +1,26 @@
 /*
-	expand_with_queue_mt.cpp - The multithread version of `expand_with_queue`
+	expand_with_queue_mt.cpp - The multithread version of `expand_with_queue`.
+
+	    This is the standard solution (STD). This solution achieves an amazing
+	accuracy (~0.01% mine hit rate) and an fascinating speed. (Can solve map
+	with a side length of 65536 in ~120s on my 5800H).
+
+		Idea: we can see each thread as a "miner". It starts with a non-mine
+	grid (by simply clicking until we find one) and tries its best to expand the
+	"safe region" (namely, the non-mine connected component containing the starting grid).
+		In detail, it maintains the "border" of the current "safe region" with
+	a queue. The "border" includes all grids that:
+		- In the current "safe region"
+		- There are at least one unknown grid in its neighbour
+		For more details, please refer to `expand()`.
+
+		What to do when two threads (miners) "meet" at one grid (that is, their
+	"safe region"s overlap): We create another N*N array, `marker`. When a thread
+	wants to put a particular grid (r, c) into its queue, it first checks whether
+	`marker[r][c] == 0`. If the answer is YES, it marks `marker[r][c]` as its
+	own thread id and put the grid into the queue. If the answer is NO, which
+	means that the grid has been "snatched" by another worker, it just skips
+	the grid.
 */
 
 #include <functional>
@@ -14,9 +35,7 @@ using std::max, std::min, std::atomic;
 #include "csapp.h"
 #include "minesweeper_helpers.h"
 
-constexpr int THREAD_COUNT = 8;
-
-constexpr int APPROX_COUNTING_THRES = 32;
+constexpr int NUM_WORKER_THREAD = 8;
 
 constexpr int MAXN = 65536;
 constexpr int delta_xy[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
@@ -29,8 +48,18 @@ std::mt19937 rng(0);
 long N, K;
 int constant_A;
 
+// We use "approximate counting" to avoid data race while achieving a better performance
+// That is, each thread maintains a "local counter", and there is one "global
+// counter" (`cnt_empty_opened`). A threads adds to its own local counter by
+// default, and when the local counter reaches `APPROX_COUNTING_THRES`, the thread
+// adds `APPROX_COUNTING_THRES` to the global counter and sets the local counter
+// to 0.
+// This is the technique called "Approximate Counting", which balances accuracy
+// and performance.
 atomic<long> cnt_empty_opened = 0;
+constexpr int APPROX_COUNTING_THRES = 32;
 
+// Variables and functions for maintaining the map
 char* map[MAXN];
 constexpr char MAP_UNKNOWN = -1;
 constexpr char MAP_MINE = -2;
@@ -93,7 +122,6 @@ struct QueueItem {
 };
 
 void expand(int start_r, int start_c, int thread_id, Channel &channel, long &local_cnt_empty_opened) {
-	// border 中存储所有与当前展开的区域相邻、周围有至少 1 个未知区域的非雷格子
 	std::deque<QueueItem> border;
 	bool first_is_mine = click_and_put_result_no_expand(channel, start_r, start_c, local_cnt_empty_opened);
 	if (first_is_mine) {
@@ -104,14 +132,15 @@ void expand(int start_r, int start_c, int thread_id, Channel &channel, long &loc
 
 	while (!border.empty()) {
 		if (cnt_empty_opened == N*N-K) break;
+
 		auto [cur_r, cur_c, re_put_cnt] = border.front();
 		border.pop_front();
 
 		int num_in_grid = map[cur_r][cur_c];
-		// assert (num_in_grid >= 0);
 
 		int adj_unknown = count_adj_unknown(cur_r, cur_c);
 		if (!adj_unknown) {
+			// 它周围已经没有未知的格子了
 			continue;
 		}
 
@@ -139,7 +168,8 @@ void expand(int start_r, int start_c, int thread_id, Channel &channel, long &loc
 				map[new_r][new_c] = MAP_MINE;
 			}
 		} else {
-			// 暂时推不出来
+			// 暂时推不出来，把这个格子放到队列的最后。
+			// 每个格子最多被如此重新入队 16 次。
 			if (re_put_cnt < 16) {
 				if (marker[cur_r][cur_c] != 0 && marker[cur_r][cur_c] != thread_id) continue;
 				marker[cur_r][cur_c] = thread_id;
@@ -177,16 +207,17 @@ int main() {
 		marker[i] = (char*)Calloc(N, 1);
 	}
 	
-	pthread_t tids[THREAD_COUNT];
-	for (int thread_id = 1; thread_id <= THREAD_COUNT; ++thread_id) {
+	pthread_t tids[NUM_WORKER_THREAD];
+	for (int thread_id = 1; thread_id <= NUM_WORKER_THREAD; ++thread_id) {
 		Pthread_create(tids+thread_id-1, NULL, thread_routine, (void*)(long)thread_id);
 	}
-	for (int i = 0; i < THREAD_COUNT; ++i) {
+	for (int i = 0; i < NUM_WORKER_THREAD; ++i) {
 		Pthread_join(tids[i], NULL);
 	}
 
 	// 如果不执行下面这段“按顺序开操”，那么会漏掉一些格子没有点开
 	// 但是踩雷数量会大幅下降
+	// 不过不论这里加不加 return 0，这份程序都可以满分
 	// return 0;
 
 	// printf("Enter phase 2\n");
@@ -214,6 +245,7 @@ int main() {
 						break;
 					}
 				}
+				// 如果我们不知道这个格子一定是雷，我们就尝试从这个点开始 expand
 				if (!infer_is_mine)
 					expand(start_r, start_c, 100, channel, local_cnt_empty_opened);
 			}
