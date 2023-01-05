@@ -131,6 +131,9 @@ ClickResult Channel::click_do_not_expand(long r, long c) {
 	}
 	// Wait for the game server to complete the request (by spinning)
 	while (!SHM_DONE_BIT(shm_pos)) {
+		// We need to check `SHM_SLEEPING_BIT(shm_pos)` again and again, because
+		// of cache coherence problem, that is, a modification on the main memory
+		// by a process will not be reflexed on another process immediately.
 		if (SHM_SLEEPING_BIT(shm_pos)) {
 			futex_wake(SHM_PENDING_BIT_PTR(shm_pos));
 		}
