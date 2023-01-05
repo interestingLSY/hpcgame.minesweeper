@@ -281,6 +281,11 @@ void read_result_from_game_server_and_report() {
 		cnt_non_mine, N*N-K, (double)cnt_non_mine/(N*N-K)*100);
 	log("点开的雷: %ld/%ld (%.4f%%)\n",
 		cnt_is_mine, K, (double)cnt_is_mine/K*100);
+	// Calculate the score
+	double score = (double)(cnt_non_mine - constant_A*(cnt_is_mine - K*0.0002)) / ((N*N-K)*0.9998) * 100;
+	if (score > 100) score = 100;
+	if (score < 0) score = 0;
+	log("最终得分：%.2f 分。%s\n", score, score == 100 ? "牛逼！" : "");
 	// Exit
 	exit(0);
 }
