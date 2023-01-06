@@ -1,7 +1,7 @@
 .SECONDEXPANSION:
 
 CC 	= g++
-CXXFLAGS ?= -g -Ofast -std=c++17 -lpthread -lrt -Wall -march=native	# `-lrt` for `shm_open()`
+CXXFLAGS ?= -g -Ofast -std=c++17 -Wall -march=native -Wl,--as-needed -pthread -lpthread -lrt	# `-lrt` for `shm_open()`
 
 ANSWERS = template naive naive_mt naive_optim interact simple_expand_single_thread expand_with_queue expand_with_queue_mt
 LIBS = csapp wrappers minesweeper_helpers log common shm futex queue
@@ -27,13 +27,14 @@ all: $(EXES) $(ANSWERS)
 	$(CC) -c $(CXXFLAGS) $< -o $@
 
 $(EXES): $$@.o $(LIB_OBJS)
-	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
+	$(CC) $@.o $(LIB_OBJS) $(CXXFLAGS) -o $@
 
 $(ANSWERS): $$@.o $(LIB_OBJS)
-	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
+	$(CC) $@.o $(LIB_OBJS) $(CXXFLAGS) -o $@
 
 handout: all
-	rm -rf minesweeper_handout/*
+	rm -rf minesweeper_handout
+	mkdir minesweeper_handout
 	# copy executables and answers
 	$(foreach file, $(HANDOUT_FILE_LIST), cp $(file) minesweeper_handout/.;)
 	# copy libraries

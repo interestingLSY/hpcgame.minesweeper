@@ -1,7 +1,7 @@
 .SECONDEXPANSION:
 
 CC 	= g++
-CXXFLAGS ?= -g -Ofast -std=c++17 -lpthread -lrt -Wall -march=native
+CXXFLAGS ?= -g -Ofast -std=c++17 -Wall -march=native -Wl,--as-needed -lpthread -lrt -pthread
 
 LIBS = csapp wrappers minesweeper_helpers log common shm futex queue
 EXES = judger game_server map_generator map_visualizer naive naive_optim interact
@@ -19,7 +19,7 @@ all: $(EXES)
 	$(CC) -c $(CXXFLAGS) $< -o $@
 
 $(EXES): $$@.o $(LIB_OBJS)
-	$(CC) $@.o $(CXXFLAGS) $(LIB_OBJS) -o $@
+	$(CC) $@.o $(LIB_OBJS) $(CXXFLAGS) -o $@
 
 handin:
 	# create the .zip file
