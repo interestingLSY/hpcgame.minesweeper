@@ -286,6 +286,16 @@ void read_result_from_game_server_and_report() {
 	if (score > 100) score = 100;
 	if (score < 0) score = 0;
 	log("最终得分：%.2f 分。%s\n", score, score == 100 ? "牛逼！" : "");
+	// Report the result to the grader
+	// Write the result to result.txt, and the grader will read it
+	int fd = Open("result.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if(fd < 0) {
+		app_error("Cannot open result.txt");
+	}
+	snprintf(buf, 128, "%.2f", score);
+	Write(fd, buf, strlen(buf));
+	Close(fd);
+	
 	// Exit
 	exit(0);
 }
