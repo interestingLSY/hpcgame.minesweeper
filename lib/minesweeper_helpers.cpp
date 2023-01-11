@@ -6,6 +6,7 @@
 #include "futex.h"
 #include "minesweeper_helpers.h"
 
+static char* shm_name;
 static char* shm_start;
 static int fd_from_gs, fd_to_gs;
 static long _N, _K;
@@ -25,7 +26,8 @@ manually. Please invoke the judger.\n");
 	// Set the process to exit when its parent dies
 	exit_when_parent_dies();
 	// Open the shared memory (shm) region
-	shm_start = open_shm();
+	shm_name = Getenv_must_exist("MINESWEEPER_SHM_NAME");
+	shm_start = open_shm(shm_name);
 	// Get fds
 	fd_from_gs = atoi(Getenv_must_exist("MINESWEEPER_FD_PL_FROM_GS"));
 	fd_to_gs = atoi(Getenv_must_exist("MINESWEEPER_FD_PL_TO_GS"));

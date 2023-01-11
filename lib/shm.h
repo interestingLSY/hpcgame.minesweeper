@@ -13,10 +13,6 @@
 // The size of the shm region
 #define TOTAL_SHM_SIZE (MAX_CHANNEL*CHANNEL_SHM_SIZE)
 
-// The name of the shared memory (shm) region
-// Used in `shm_open`
-#define SHM_NAME "/minesweeper_shm"
-
 // Macros for accessing members inside a shm region
 #define SHM_PENDING_BIT(pos) (*((volatile unsigned int*)(pos)))
 #define SHM_PENDING_BIT_PTR(pos) ((unsigned int*)(pos))
@@ -31,10 +27,14 @@
 #define SHM_OPENED_GRID_ARR(pos) ((unsigned short (*)[16384][3])(pos+28))
 
 // Open the shared memory (shm), and return a pointer pointing to its head
-char* open_shm();
+char* open_shm(const char* shm_name);
 
 // Initialize a shm region
 // This is supposed to be called by the game server
 void init_shm_region(char* pos);
+
+// Generate a random shm name
+// Looks like `/minesweeper_shm_12556206635472641212`
+void generate_random_shm_name(char* result);
 
 #endif // __MINESWEEPER_SHM_H__

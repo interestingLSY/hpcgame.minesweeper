@@ -108,6 +108,7 @@ char* map_file_path;	// path to the map file
 int fd_to_pl, fd_from_pl;	// fds (used to communicate with player's program)
 int fd_to_ju, fd_from_ju;	// fds (used to communicate with the judger)
 
+char* shm_name;
 char* shm_start;	// Point to the head of the shared memory region
 
 char* is_mine;	// A large bit array, representing the map.
@@ -152,6 +153,7 @@ the judger. Please do not launch it directly.");
 	fd_from_pl = atoi(Getenv_must_exist("MINESWEEPER_FD_GS_FROM_PL"));
 	fd_to_ju = atoi(Getenv_must_exist("MINESWEEPER_FD_GS_TO_JU"));
 	fd_from_ju = atoi(Getenv_must_exist("MINESWEEPER_FD_GS_FROM_JU"));
+	shm_name = Getenv_must_exist("MINESWEEPER_SHM_NAME");
 }
 
 // read and parse the map
@@ -537,7 +539,7 @@ int main(int argc, char* argv[]) {
 		vis_occupied_flags[i].clear();
 	}
 
-	shm_start = open_shm();
+	shm_start = open_shm(shm_name);
 	
 	// Send N and K to the players program, via `fd_to_pl`
 	char buf[64];

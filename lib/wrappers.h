@@ -49,6 +49,9 @@ void Ftruncate(int fd, off_t length);
 /* Seek to a certain position on STREAM. */
 void Fseek(FILE *stream, long offset, int whence);
 
+/* Remove shared memory segment.  */
+void Shm_unlink(const char* name);
+
 /* Set cancelability state of current thread to STATE, returning old
    state in *OLDSTATE if OLDSTATE is not NULL.  */
 void Pthread_setcancelstate(int state, int* oldstate);

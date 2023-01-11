@@ -77,6 +77,8 @@ char* game_server_path;	// path to the game server (executable file)
 int time_limit;			// time limit, in seconds
 int constant_A;
 
+char shm_name[64];	// name of the shared memory region
+
 int fd_pl_to_gs, fd_gs_from_pl;
 int fd_pl_from_gs, fd_gs_to_pl;
 int fd_gs_to_ju, fd_ju_from_gs;
@@ -180,8 +182,10 @@ void sigalrm_handler(int _) {
 
 // Create a shared memory region, consisting MAX_CHANNEL*CHANNEL_MEMORY_REGION_SIZE = SHM_SIZE bytes
 void create_shared_memory_region() {
+	// Generate a random shm name
+	generate_random_shm_name(shm_name);
 	// Create the fd pointing to the shared memory region
-	int mem_fd = Shm_open(SHM_NAME, O_CREAT | O_TRUNC | O_RDWR, S_IRWXU);
+	int mem_fd = Shm_open(shm_name, O_CREAT | O_TRUNC | O_RDWR, S_IRWXU);
 	// Truncate the memory region
 	Ftruncate(mem_fd, TOTAL_SHM_SIZE);
 }
@@ -206,6 +210,7 @@ void create_game_server() {
 		sprintf(buf, "%d", fd_gs_from_ju);
 		Setenv("MINESWEEPER_FD_GS_FROM_JU", buf, true);
 		Setenv("MINESWEEPER_MAP_FILE_PATH", map_file_path, true);
+		Setenv("MINESWEEPER_SHM_NAME", shm_name, true);
 		Setenv("MINESWEEPER_LAUNCHED_BY_JUDGER", "1", true);
 
 		// Reset signal handlers
@@ -241,6 +246,7 @@ void create_player() {
 		Setenv("MINESWEEPER_FD_PL_FROM_GS", buf, true);
 		sprintf(buf, "%d", constant_A);
 		Setenv("MINESWEEPER_CONSTANT_A", buf, true);
+		Setenv("MINESWEEPER_SHM_NAME", shm_name, true);
 		Setenv("MINESWEEPER_LAUNCHED_BY_JUDGER", "1", true);
 
 		// Reset signal handlers
@@ -350,6 +356,7 @@ int main(int argc, char* argv[]) {
 	create_player();
 	Usleep(10000);	// Sleep for a short time, increase stability
 	Alarm(time_limit);	// Set up the alarm. When time is up, we should receive a SIGALRM signal
+	Shm_unlink(shm_name);
 	restore_prev_blockset();
 
 	// // Go to bed to sleep, and use sigsuspend() to wait for any signals

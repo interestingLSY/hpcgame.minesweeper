@@ -65,6 +65,13 @@ void Fseek(FILE *stream, long offset, int whence) {
 	}
 }
 
+void Shm_unlink(const char* name) {
+	int rc;
+	if ((rc = shm_unlink(name)) < 0) {
+		posix_error(rc, "shm_unlink error");
+	}
+}
+
 void Pthread_setcancelstate(int state, int* oldstate) {
 	int rc;
 	if ((rc = pthread_setcancelstate(state, oldstate)) < 0) {
