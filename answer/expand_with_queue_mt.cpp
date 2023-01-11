@@ -185,11 +185,15 @@ void* thread_routine(void* arg) {
 	Channel channel = create_channel();
 	int thread_id = (int)(long)arg;
 	long local_cnt_empty_opened = 0;
-	while (cnt_empty_opened <= (N*N-K)*95/100) {
+	const long break_thres = (N*N-K)*95/100;
+	while (cnt_empty_opened <= break_thres) {
 		int start_r, start_c;
 		do {
 			start_r = rng()&(N-1);
 			start_c = rng()&(N-1);
+			if (cnt_empty_opened > break_thres) {
+				return NULL;
+			}
 		} while (map[start_r][start_c] != MAP_UNKNOWN);
 		expand(start_r, start_c, thread_id, channel, local_cnt_empty_opened);
 		cnt_empty_opened += local_cnt_empty_opened;
