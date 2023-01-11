@@ -7,11 +7,30 @@
 */
 
 #include <pthread.h>
+#include <cstdlib>
+#include <cstdio>
+#include <string.h>
 #include "minesweeper_helpers.h"
-#include "wrappers.h"
-#include "log.h"
 
 constexpr int THREAD_COUNT = 8;
+
+void Pthread_create_wrapper(pthread_t *tidp, pthread_attr_t *attrp, 
+		    void * (*routine)(void *), void *argp) 
+{
+    int rc;
+
+    if ((rc = pthread_create(tidp, attrp, routine, argp)) != 0)
+		fprintf(stderr, "Pthread_create error");
+}
+
+void Pthread_join_wrapper(pthread_t tid, void **thread_return) {
+    int rc;
+
+    if ((rc = pthread_join(tid, thread_return)) != 0)
+		fprintf(stderr, "Pthread_join error");
+}
+
+
 
 long N, K;
 int constant_A;
@@ -36,11 +55,11 @@ int main() {
 	// Summon those worker threads
 	pthread_t tids[THREAD_COUNT];
 	for (int i = 0; i < THREAD_COUNT; ++i) {
-		Pthread_create(tids+i, NULL, thread_routine, (void*)(long)i);
+		Pthread_create_wrapper(tids+i, NULL, thread_routine, (void*)(long)i);
 	}
 	// Wait for worker threads to finish
 	for (int i = 0; i < THREAD_COUNT; ++i) {
-		Pthread_join(tids[i], NULL);
+		Pthread_join_wrapper(tids[i], NULL);
 	}
 
 	return 0;
