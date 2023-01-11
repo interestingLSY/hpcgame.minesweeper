@@ -237,7 +237,7 @@ void summarize() {
 	char buf[128];
 	sprintf(buf, "%d %ld %ld %ld %ld",
 		0, N, K, cnt_non_mine, cnt_is_mine);
-	Write(fd_to_ju, buf, strlen(buf));
+	Write(fd_to_ju, buf, strlen(buf)+1);
 	// Clean up and exit
 	Free(is_mine);
 	Free(is_open);
@@ -364,7 +364,7 @@ void* worker_thread_routine(void* arg) {
 	// Response to player's program with the channel ID (through fd_to_pl)
 	char buf[16];
 	sprintf(buf, "%d", channel_id);
-	Write(fd_to_pl, buf, strlen(buf));
+	Write(fd_to_pl, buf, strlen(buf)+1);
 
 	// printf("is_mine %d\n", test_is_mine(1, 1));
 	// Go to 996!
@@ -462,7 +462,7 @@ void kill_worker_threads() {
 // Send something to the judger
 void report_error_to_judger(const char* error_s) {
 	Pthread_mutex_lock(&worker_thread_tids_mutex);
-	Write(fd_to_ju, error_s, strlen(error_s));
+	Write(fd_to_ju, error_s, strlen(error_s)+1);
 	Pthread_mutex_unlock(&worker_thread_tids_mutex);
 }
 
@@ -544,7 +544,7 @@ int main(int argc, char* argv[]) {
 	// Send N and K to the players program, via `fd_to_pl`
 	char buf[64];
 	sprintf(buf, "%ld %ld", N, K);
-	Write(fd_to_pl, buf, strlen(buf));
+	Write(fd_to_pl, buf, strlen(buf)+1);
 
 	main_thread_routine();
 

@@ -44,6 +44,8 @@ handout: all
 	cp Makefile_handout.mk minesweeper_handout/Makefile
 	# copy answer template
 	cp answer/template.cpp minesweeper_handout/answer.cpp
+	# create the zipball
+	zip -r -q minesweeper_handout.zip minesweeper_handout/
 
 clean:
 	rm -rf *.o $(EXES) $(ANSWERS)

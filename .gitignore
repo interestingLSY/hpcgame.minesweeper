@@ -27,6 +27,7 @@ simple_expand_single_thread
 map/
 handout/
 minesweeper_handout/
+minesweeper_handout.zip
 
 # output file of gperf
 gmon.out
