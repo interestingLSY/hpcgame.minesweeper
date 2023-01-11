@@ -18,6 +18,7 @@ template
 naive
 naive_mt
 naive_optim
+just_open_many_channels
 interact
 expand_with_queue
 expand_with_queue_mt

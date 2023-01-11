@@ -77,7 +77,7 @@ char* game_server_path;	// path to the game server (executable file)
 int time_limit;			// time limit, in seconds
 int constant_A;
 
-char shm_name[64];	// name of the shared memory region
+char shm_name[64] = "";	// name of the shared memory region
 
 int fd_pl_to_gs, fd_gs_from_pl;
 int fd_pl_from_gs, fd_gs_to_pl;
@@ -140,6 +140,9 @@ void sigchld_handler(int _) {
 				sio_put("\n");
 			}
 			sio_log(this_is_a_bug_str);
+			if (shm_name[0]) {
+				Shm_unlink(shm_name);
+			}
 			exit(1);
 		} else {
 			// The ... em ... well, I don't know what to say
@@ -149,6 +152,9 @@ void sigchld_handler(int _) {
 			sio_put(" pid of the exited child: "); sio_put(pid);
 			sio_put("\n");
 			sio_log(this_is_a_bug_str);
+			if (shm_name[0]) {
+				Shm_unlink(shm_name);
+			}
 			exit(1);
 		}
 	}
@@ -168,6 +174,9 @@ void sigpipe_handler(int _) {
 	sio_log("Warning: Broken pipe.\n");
 	sio_log("This means that there are some bugs in the judger.\n");
 	sio_log(this_is_a_bug_str);
+	if (shm_name[0]) {
+		Shm_unlink(shm_name);
+	}
 	exit(1);
 }
 
@@ -178,6 +187,15 @@ void sigalrm_handler(int _) {
 	sio_log("Time is up. Killing player's program and reading result from the game server.\n");
 	kill(player_pid, SIGKILL);
 	read_result_from_game_server_and_report();
+}
+
+// The SIGINT signal handler
+// Invoked when the user presses ctrl-C
+void sigint_handler(int _) {
+	if (shm_name[0]) {
+		Shm_unlink(shm_name);
+	}
+	exit(0);
 }
 
 // Create a shared memory region, consisting MAX_CHANNEL*CHANNEL_MEMORY_REGION_SIZE = SHM_SIZE bytes
@@ -217,6 +235,7 @@ void create_game_server() {
 		Signal(SIGCHLD, SIG_DFL);
 		Signal(SIGPIPE, SIG_DFL);
 		Signal(SIGALRM, SIG_DFL);
+		Signal(SIGINT, SIG_DFL);
 
 		log("Starting game server...\n");
 
@@ -253,6 +272,7 @@ void create_player() {
 		Signal(SIGCHLD, SIG_DFL);
 		Signal(SIGPIPE, SIG_DFL);
 		Signal(SIGALRM, SIG_DFL);
+		Signal(SIGINT, SIG_DFL);
 
 		log("Starting player's program...\n");
 
@@ -293,6 +313,9 @@ void read_result_from_game_server_and_report() {
 	if (score < 0) score = 0;
 	log("最终得分：%.2f 分。%s\n", score, score == 100 ? "牛逼！" : "");
 	// Exit
+	if (shm_name[0]) {
+		Shm_unlink(shm_name);
+	}
 	exit(0);
 }
 
@@ -348,6 +371,7 @@ int main(int argc, char* argv[]) {
 	Signal(SIGCHLD, sigchld_handler);
 	Signal(SIGPIPE, sigpipe_handler);
 	Signal(SIGALRM, sigalrm_handler);
+	Signal(SIGINT, sigint_handler);
 
 	// Launch the game server and the player's program
 	// We block all signals here, in order to prevent SIGCHLD from disturbing us.
@@ -356,7 +380,6 @@ int main(int argc, char* argv[]) {
 	create_player();
 	Usleep(10000);	// Sleep for a short time, increase stability
 	Alarm(time_limit);	// Set up the alarm. When time is up, we should receive a SIGALRM signal
-	Shm_unlink(shm_name);
 	restore_prev_blockset();
 
 	// // Go to bed to sleep, and use sigsuspend() to wait for any signals
