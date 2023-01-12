@@ -45,6 +45,7 @@ handout: all
 	# copy answer template
 	cp answer/template.cpp minesweeper_handout/answer.cpp
 	# create the zipball
+	rm -rf minesweeper_handout.zip
 	zip -r -q minesweeper_handout.zip minesweeper_handout/
 
 clean:
