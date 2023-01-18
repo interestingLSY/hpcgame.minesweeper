@@ -1,4 +1,6 @@
 /*
+	blank_counter - A tool for counting the maximum connected component of zeros
+	in a map.
 */
 
 #include <cstdio>

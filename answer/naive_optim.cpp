@@ -1,8 +1,8 @@
 /*
 	naive_optim.cpp - A naive solution
 	This solution just clicks all grids one by one, with a simple optimization,
-	which terminates the program (do not do further clicking) when we detect that
-	we have opened all non-mine grids
+	which terminates the program (do not click further) when we detect that
+	we have opened all non-mine grids.
 */
 
 #include <cstdio>

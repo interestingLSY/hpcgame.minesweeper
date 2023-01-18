@@ -1,6 +1,6 @@
 /*
 	just_open_many_channels.cpp - Just open many channels, and perform `click(0, 0, 0)`
-	on each channel, for stability testing.
+	on each channel. For stability testing.
 */
 
 #include <cstdio>

@@ -1,5 +1,7 @@
 /*
  * wrappers.h - various wrapper functions for unix functions
+ *    A function wrapper checks the return value of the original function, and
+ * when an error is encountered, it prints out an error message and exits.
  */
 
 #ifndef __MINESWEEPER_WRAPPERS_H__

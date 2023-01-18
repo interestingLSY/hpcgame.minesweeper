@@ -1,3 +1,7 @@
+/*
+	simple_expand_single_thread - This solution is strange. Just ignore this
+	file, please.
+*/
 #include <functional>
 #include <utility>
 using std::max, std::min;

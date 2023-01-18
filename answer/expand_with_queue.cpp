@@ -1,6 +1,8 @@
 /*
 	expand_with_queue.cpp - A single threaded solution, with amazing accuracy (~0.01%
 	mine hit rate) and an acceptable speed.
+
+	For more detail, please refer to `expand_with_queue_mt.cpp`.
 */
 #include <functional>
 #include <utility>

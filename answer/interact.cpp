@@ -1,3 +1,7 @@
+/*
+	interact.cpp - An interactive program which allows the player plays the minesweeper
+	game in the console with the game server.
+*/
 #include <cstdio>
 #include <iostream>
 #include <cstring>

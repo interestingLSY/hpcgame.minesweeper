@@ -1,17 +1,17 @@
 /*
-	expand_with_queue_mt.cpp - The multithread version of `expand_with_queue`.
+	expand_with_queue_mt.cpp - The multithreaded version of `expand_with_queue`.
 
 	    This is the standard solution (STD). This solution achieves an amazing
-	accuracy (~0.01% mine hit rate) and an fascinating speed. (Can solve map
+	accuracy (~0.01% mine hit rate) and a fascinating speed. (It can solve map
 	with a side length of 65536 in ~120s on my 5800H).
 
-		Idea: we can see each thread as a "miner". It starts with a non-mine
-	grid (by simply clicking until we find one) and tries its best to expand the
+		Idea: We can see each thread as a "miner". It starts with a non-mine
+	grid (by simply clicking until one is found) and tries its best to expand the
 	"safe region" (namely, the non-mine connected component containing the starting grid).
 		In detail, it maintains the "border" of the current "safe region" with
 	a queue. The "border" includes all grids that:
 		- In the current "safe region"
-		- There are at least one unknown grid in its neighbour
+		- There is at least one unknown grid in its neighbour
 		For more details, please refer to `expand()`.
 
 		What to do when two threads (miners) "meet" at one grid (that is, their
